@@ -1,0 +1,9 @@
+services:
+  accounts-service:
+    image: kongcx/accounts-service:1.0.1
+    container_name: accounts
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
