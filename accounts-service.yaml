@@ -1,0 +1,462 @@
+type: spec.insomnia.rest/5.0
+schema_version: "5.1"
+name: accounts-service
+meta:
+  id: wrk_9f59ef93152648119e74ceec85685146
+  created: 1770219281978
+  modified: 1770219281978
+  description: ""
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_24288a02a3214ab9571d04d22987e8b43144f608
+    created: 1770219281983
+    modified: 1770219281983
+environments:
+  name: Base Environment
+  meta:
+    id: env_24288a02a3214ab9571d04d22987e8b43144f608
+    created: 1770219281982
+    modified: 1770219281982
+    isPrivate: false
+spec:
+  contents:
+    openapi: 3.0.3
+    info:
+      title: Accounts API
+      version: 1.0.0
+      description: This API manages account information and balances.
+      contact:
+        email: stephen.brown@konghq.com
+    servers:
+      - url: http://localhost:8081
+        description: Local development server
+    tags:
+      - name: accounts
+        description: Operations related to account management (retrieval and balance
+          updates)
+      - name: health
+        description: Health check endpoints for monitoring service status
+    paths:
+      /health:
+        get:
+          tags:
+            - health
+          operationId: healthCheck
+          summary: Health check endpoint
+          description: Returns the API's health status
+          responses:
+            "200":
+              description: API is healthy
+              content:
+                application/json:
+                  schema:
+                    type: string
+                  examples:
+                    success:
+                      summary: Healthy response
+                      value: Accounts API is running
+        head:
+          tags:
+            - health
+          operationId: healthCheckHead
+          summary: Health check endpoint (HEAD)
+          description: Returns the API's health status without body
+          responses:
+            "200":
+              description: API is healthy
+      /accounts:
+        get:
+          tags:
+            - accounts
+          operationId: listAccounts
+          summary: List all accounts
+          description: Returns a list of all accounts with basic details.
+          responses:
+            "200":
+              description: A list of accounts was successfully retrieved
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Account"
+                  examples:
+                    multiple_accounts:
+                      summary: Multiple accounts example
+                      value:
+                        - account_id: 123e4567-e89b-12d3-a456-426614174000
+                          type: checking
+                          balance: 1500
+                        - account_id: 987fcdeb-51a2-43e7-89bc-765432198765
+                          type: savings
+                          balance: 5000
+            "500":
+              description: Failed to retrieve accounts due to internal server error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    lock_error:
+                      summary: Database lock error
+                      value:
+                        error_code: INTERNAL_ERROR
+                        message: "Lock error: failed to acquire lock while listing accounts"
+        post:
+          tags:
+            - accounts
+          operationId: createAccount
+          summary: Create a new account
+          description: Creates a new account with an initial balance. The account ID is
+            automatically generated.
+          requestBody:
+            description: Details for the new account including type and initial balance. The
+              account ID will be automatically generated.
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CreateAccountRequest"
+                examples:
+                  checking_account:
+                    summary: Create checking account
+                    value:
+                      type: checking
+                      initial_balance: 1000
+                  savings_account:
+                    summary: Create savings account
+                    value:
+                      type: savings
+                      initial_balance: 5000
+          responses:
+            "201":
+              description: Account created successfully
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Account"
+                  examples:
+                    new_account:
+                      summary: Newly created account
+                      value:
+                        account_id: 123e4567-e89b-12d3-a456-426614174000
+                        type: checking
+                        balance: 1000
+            "400":
+              description: Failed to create account due to invalid input
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    invalid_balance:
+                      summary: Invalid initial balance
+                      value:
+                        error_code: INVALID_INPUT
+                        message: "Failed to create account: Initial balance must be non-negative"
+            "500":
+              description: Failed to create account due to internal server error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    creation_error:
+                      summary: Account creation failed
+                      value:
+                        error_code: INTERNAL_ERROR
+                        message: "Failed to create account: Internal server error occurred"
+      /accounts/{accountId}:
+        get:
+          tags:
+            - accounts
+          operationId: getAccountById
+          summary: Retrieve a single account
+          description: Returns details for the specified account including current balance.
+          parameters:
+            - name: accountId
+              in: path
+              required: true
+              description: The UUID of the account to retrieve
+              schema:
+                type: string
+                format: uuid
+              example: 123e4567-e89b-12d3-a456-426614174000
+          responses:
+            "200":
+              description: Account details retrieved successfully
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Account"
+                  examples:
+                    checking_account:
+                      summary: Example checking account
+                      value:
+                        account_id: 123e4567-e89b-12d3-a456-426614174000
+                        type: checking
+                        balance: 1500
+            "404":
+              description: Account lookup failed - specified account ID does not exist
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    not_found:
+                      summary: Account not found error
+                      value:
+                        error_code: NOT_FOUND
+                        message: "Failed to retrieve account: ID 123e4567-e89b-12d3-a456-426614174000
+                          not found"
+            "500":
+              description: Failed to retrieve account details due to internal server error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    server_error:
+                      summary: Internal server error
+                      value:
+                        error_code: INTERNAL_ERROR
+                        message: "Failed to retrieve account: Internal server error occurred"
+      /accounts/{accountId}/debit:
+        post:
+          tags:
+            - accounts
+          operationId: debitAccount
+          summary: Debit an account
+          description: Decreases the account's balance by the specified amount.
+          parameters:
+            - name: accountId
+              in: path
+              required: true
+              description: The UUID of the account to debit
+              schema:
+                type: string
+                format: uuid
+              example: 123e4567-e89b-12d3-a456-426614174000
+          requestBody:
+            description: Specifies the amount to debit from the account balance.
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UpdateBalanceRequest"
+                examples:
+                  small_debit:
+                    summary: Small debit amount
+                    value:
+                      amount: 100
+                  large_debit:
+                    summary: Large debit amount
+                    value:
+                      amount: 1000
+          responses:
+            "200":
+              description: Account debited successfully
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Account"
+                  examples:
+                    successful_debit:
+                      summary: Account after successful debit
+                      value:
+                        account_id: 123e4567-e89b-12d3-a456-426614174000
+                        type: checking
+                        balance: 900
+            "400":
+              description: Debit operation failed due to insufficient funds or invalid amount
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    insufficient_funds:
+                      summary: Insufficient funds error
+                      value:
+                        error_code: INSUFFICIENT_FUNDS
+                        message: "Failed to debit account: Insufficient funds - balance is 900.00,
+                          attempted to debit 1000.00"
+            "404":
+              description: Debit operation failed - account not found
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    not_found:
+                      summary: Account not found
+                      value:
+                        error_code: NOT_FOUND
+                        message: "Failed to debit account: Account does not exist"
+            "500":
+              description: Failed to process debit operation due to internal server error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    server_error:
+                      summary: Internal error
+                      value:
+                        error_code: INTERNAL_ERROR
+                        message: "Failed to debit account: Internal server error occurred"
+      /accounts/{accountId}/credit:
+        post:
+          tags:
+            - accounts
+          operationId: creditAccount
+          summary: Credit an account
+          description: Increases the account's balance by the specified amount.
+          parameters:
+            - name: accountId
+              in: path
+              required: true
+              description: The UUID of the account to credit
+              schema:
+                type: string
+                format: uuid
+              example: 123e4567-e89b-12d3-a456-426614174000
+          requestBody:
+            description: Specifies the amount to credit to the account balance.
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UpdateBalanceRequest"
+                examples:
+                  small_credit:
+                    summary: Small credit amount
+                    value:
+                      amount: 500
+                  large_credit:
+                    summary: Large credit amount
+                    value:
+                      amount: 5000
+          responses:
+            "200":
+              description: Account credited successfully
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Account"
+                  examples:
+                    successful_credit:
+                      summary: Account after successful credit
+                      value:
+                        account_id: 123e4567-e89b-12d3-a456-426614174000
+                        type: checking
+                        balance: 2000
+            "400":
+              description: Credit operation failed due to invalid amount
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    invalid_amount:
+                      summary: Invalid amount error
+                      value:
+                        error_code: INVALID_INPUT
+                        message: "Failed to credit account: Amount must be positive"
+            "404":
+              description: Credit operation failed - account not found
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    not_found:
+                      summary: Account not found
+                      value:
+                        error_code: NOT_FOUND
+                        message: "Failed to credit account: Account does not exist"
+            "500":
+              description: Failed to process credit operation due to internal server error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/ErrorResponse"
+                  examples:
+                    server_error:
+                      summary: Internal error
+                      value:
+                        error_code: INTERNAL_ERROR
+                        message: "Failed to credit account: Internal server error occurred"
+    components:
+      schemas:
+        Account:
+          type: object
+          description: Represents a bank account with its core details including ID, type,
+            and current balance.
+          properties:
+            account_id:
+              type: string
+              format: uuid
+              description: Unique identifier for the account (UUID v4)
+              example: 123e4567-e89b-12d3-a456-426614174000
+            type:
+              type: string
+              description: The type of the account (e.g., checking, savings)
+              example: checking
+            balance:
+              type: number
+              format: double
+              description: The current balance of the account in the account's currency
+              example: 1500
+        CreateAccountRequest:
+          type: object
+          description: Request payload for creating a new account.
+          required:
+            - type
+            - initial_balance
+          properties:
+            type:
+              type: string
+              description: The type of account to create (e.g., checking, savings)
+              example: savings
+            initial_balance:
+              type: number
+              format: double
+              description: The initial balance to fund the account with
+              example: 5000
+        UpdateBalanceRequest:
+          type: object
+          description: Request payload for updating an account's balance via credit or
+            debit operations.
+          required:
+            - amount
+          properties:
+            amount:
+              type: number
+              format: double
+              description: The amount to credit or debit from the account
+              example: 100
+        ErrorResponse:
+          type: object
+          description: Standard error response structure for all error cases.
+          required:
+            - error_code
+            - message
+          properties:
+            error_code:
+              type: string
+              description: A standardized error code identifying the type of error
+              example: NOT_FOUND
+              enum:
+                - INTERNAL_ERROR
+                - NOT_FOUND
+                - INSUFFICIENT_FUNDS
+                - INVALID_INPUT
+            message:
+              type: string
+              description: A human-readable description of the error
+              example: The requested account does not exist.
+  meta:
+    id: spc_d944c94fd31144b697427921b1c2909d
+    created: 1770219281981
+    modified: 1770219405138
