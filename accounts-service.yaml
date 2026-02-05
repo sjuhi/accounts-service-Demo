@@ -11,7 +11,7 @@ collection:
     meta:
       id: fld_1e713bd709aa4cfd9312f72fe51859a6
       created: 1770220173877
-      modified: 1770221001337
+      modified: 1770259630730
       sortKey: -1770220173877
       description: Operations related to account management (retrieval and balance updates)
     children:
@@ -144,7 +144,7 @@ collection:
         meta:
           id: req_af4e14f239e1409395773bec2e688b4d
           created: 1770220173880
-          modified: 1770220918780
+          modified: 1770259598924
           isPrivate: false
           description: Returns details for the specified account including current balance.
           sortKey: -1770220173880
@@ -201,7 +201,7 @@ collection:
         meta:
           id: req_96775ffeaa9240db9c0b56c986b04ed8
           created: 1770220173881
-          modified: 1770220706608
+          modified: 1770259584681
           isPrivate: false
           description: Increases the account's balance by the specified amount.
           sortKey: -1770220173881
@@ -263,6 +263,15 @@ collection:
             send: true
             store: true
           rebuildPath: true
+    scripts:
+      afterResponse: >-
+        // This runs for every request in the collection
+
+        insomnia.test('Global: Request Successful', () => {
+            // .code ensures we are comparing numbers (200, 201), not strings ("OK")
+            const successCodes = [200, 201, 204];
+            insomnia.expect(insomnia.response.code).to.be.oneOf(successCodes);
+        });
   - name: health
     meta:
       id: fld_aaa971843514486aa9d1b8c8beb3c23d
@@ -312,13 +321,13 @@ cookieJar:
   meta:
     id: jar_24288a02a3214ab9571d04d22987e8b43144f608
     created: 1770219281983
-    modified: 1770221001336
+    modified: 1770259630729
 environments:
   name: Base Environment
   meta:
     id: env_24288a02a3214ab9571d04d22987e8b43144f608
     created: 1770219281982
-    modified: 1770221001337
+    modified: 1770259630730
     isPrivate: false
   data:
     base_url: "{{ _.scheme }}://{{ _.host }}{{ _.base_path }}"
@@ -327,7 +336,7 @@ environments:
       meta:
         id: env_215141f844cf421aa2945b711876fd10
         created: 1770220173877
-        modified: 1770221001337
+        modified: 1770259630730
         isPrivate: false
         sortKey: 1770220173877
       data:
