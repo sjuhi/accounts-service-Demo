@@ -1,0 +1,141 @@
+type: mock.insomnia.rest/5.0
+schema_version: "5.1"
+name: "Accounts-service "
+meta:
+  id: wrk_0b88863f01be480283566fe597d427f9
+  created: 1770276829269
+  modified: 1770276829269
+  description: ""
+server:
+  meta:
+    id: mock_ecb9663eee1d4cf38509270977bdee74
+    created: 1770276829274
+    modified: 1770276829274
+  url: http://localhost:8080
+  useInsomniaCloud: false
+routes:
+  - name: /health
+    meta:
+      id: mock-route_c9699b5e72f841cbbd229893dbd4f271
+      created: 1770276845591
+      modified: 1770276845591
+    body: '"Accounts API is running"'
+    headers:
+      - name: Content-Type
+        value: application/json
+    method: GET
+    mimeType: application/json
+    statusCode: 200
+    statusText: ""
+  - name: /health
+    meta:
+      id: mock-route_7b69dd2fa47e4571962ff451ad327a21
+      created: 1770276845601
+      modified: 1770276845601
+    body: "{}"
+    method: HEAD
+    mimeType: application/json
+    statusCode: 200
+    statusText: ""
+  - name: /accounts
+    meta:
+      id: mock-route_c80a13c2a3a1421982122e6a585b8568
+      created: 1770276845605
+      modified: 1770276845605
+    body: |-
+      [
+        {
+          "account_id": "34b7ee1c-9cd2-4a33-aa01-8dfd683f3c9c",
+          "type": "checking",
+          "balance": 2357.45
+        },
+        {
+          "account_id": "bb97e2be-5be4-4770-a6a7-d89923fa4b60",
+          "type": "savings",
+          "balance": 8471.19
+        },
+        {
+          "account_id": "f3235f95-f5e0-4cd2-9203-62c35b66a0a3",
+          "type": "money_market",
+          "balance": 12603.12
+        }
+      ]
+    headers:
+      - name: Content-Type
+        value: application/json
+    method: GET
+    mimeType: application/json
+    statusCode: 200
+    statusText: ""
+  - name: /accounts
+    meta:
+      id: mock-route_69d6649477974223841f6647181d030c
+      created: 1770276845608
+      modified: 1770276845608
+    body: |-
+      {
+        "account_id": "5baf3c72-9cfd-4a92-a60a-145bf483d5df",
+        "type": "savings",
+        "balance": 2500
+      }
+    headers:
+      - name: Content-Type
+        value: application/json
+    method: POST
+    mimeType: application/json
+    statusCode: 201
+    statusText: ""
+  - name: /accounts/{accountId}
+    meta:
+      id: mock-route_ba7154368b754794850bcdb485500601
+      created: 1770276845610
+      modified: 1770276845610
+    body: |-
+      {
+        "account_id": "987f6543-ab21-34cd-89ef-135791357924",
+        "type": "savings",
+        "balance": 2350.75
+      }
+    headers:
+      - name: Content-Type
+        value: application/json
+    method: GET
+    mimeType: application/json
+    statusCode: 200
+    statusText: ""
+  - name: /accounts/{accountId}/debit
+    meta:
+      id: mock-route_d14b43283f7b451494d15abbe84917b7
+      created: 1770276845612
+      modified: 1770276845612
+    body: |-
+      {
+        "account_id": "3f9d6b72-6c5b-42e0-9942-ccd0d046a837",
+        "type": "checking",
+        "balance": 2375.50
+      }
+    headers:
+      - name: Content-Type
+        value: application/json
+    method: POST
+    mimeType: application/json
+    statusCode: 200
+    statusText: ""
+  - name: /accounts/{accountId}/credit
+    meta:
+      id: mock-route_cdf5012e130d49b1891198f4df6764d2
+      created: 1770276845614
+      modified: 1770276845614
+    body: |-
+      {
+        "account_id": "123e4567-e89b-12d3-a456-426614174000",
+        "type": "checking",
+        "balance": 2000
+      }
+    headers:
+      - name: Content-Type
+        value: application/json
+    method: POST
+    mimeType: application/json
+    statusCode: 200
+    statusText: ""
